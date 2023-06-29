@@ -15,24 +15,40 @@ pipeline {
       }
     }
 
-    stage('Build image') {
-      steps{
-        script {
-          dockerImage = 'docker build -t indalarajesh/nodeapp .'
-        }
-      }
-    }
+    stage('Docker Build & Push') {
+    steps {
+        script {
+            withDockerRegistry(credentialsId: 'dockerhublogin', toolName: 'docker') {
+                sh "docker build -t nodeapp:latest -f docker/Dockerfile ."
+                sh "docker tag nodeapp:latest indalarajesh/nodeapp:latest"
+                sh "docker push indalarajesh/nodeapp:latest"
+            }
+        }
+    }
+}
 
-    stage('Pushing Image') {
-      environment {
-               registryCredential = 'dockerhublogin'
-           }
-      steps{
-          sh docker.withRegistry( 'https://registry.hub.docker.com', registryCredential ) {
-          sh dockerImage.push("latest")
-        }
-      }
-    }
+
+
+    // stage('Build image') {
+    //   steps{
+    //     script {
+    //       dockerImage = 'docker build -t indalarajesh/nodeapp .'
+    //     }
+    //   }
+    // }
+
+    // stage('Pushing Image') {
+    //   environment {
+    //            registryCredential = 'dockerhublogin'
+    //        }
+    //   steps{
+    //     script{
+    //       docker.withRegistry( 'https://registry.hub.docker.com', registryCredential ) {
+    //       dockerImage.push("latest")
+    //       }
+    //     }
+    //   }
+    // }
 
     stage('Deploying App to Kubernetes') {
       steps {
