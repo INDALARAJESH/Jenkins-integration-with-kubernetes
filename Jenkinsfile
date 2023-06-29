@@ -28,10 +28,8 @@ pipeline {
                registryCredential = 'dockerhublogin'
            }
       steps{
-        script {
-          docker.withRegistry( 'https://registry.hub.docker.com', registryCredential ) {
-            dockerImage.push("latest")
-          }
+          sh docker.withRegistry( 'https://registry.hub.docker.com', registryCredential ) {
+          sh dockerImage.push("latest")
         }
       }
     }
